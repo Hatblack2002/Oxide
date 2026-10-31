@@ -2,5 +2,5 @@
   "name": "Oxide Companion",
   "description": "Compañero autónomo de recolección para Oxide: Survival Island con captura MediaProjection, control AccessibilityService, visión TFLite + ML Kit OCR, calibrador de pantalla real (20:9/19.5:9/16:9) y puntos de control G1-G7.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }
