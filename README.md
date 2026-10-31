@@ -1,6 +1,6 @@
 # Oxide Companion — Compañero Autónomo de Recolección (Android / Kotlin)
 
-Asistente nativo Android en Kotlin y Jetpack Compose para **Oxide: Survival Island** (HYPERHUG). Diseñado para ejecutarse en el mismo teléfono donde juegas y automatizar exclusivamente la recolección rutinaria de madera y minerales, el crafteo de herramientas y el depósito en tu cofre, manteniendo una política estricta de **cero combate, cero lectura de memoria y parada inmediata ante otros jugadores**.
+Asistente nativo Android en Kotlin y Jetpack Compose para **Oxide: Survival Island** (HYPERHUG). Diseñado para ejecutarse en el mismo teléfono donde juegas y automatizar exclusivamente la recolección rutinaria de madera y minerales, el crafteo de herramientas y el depósito en tu cofre, manteniendo una política estricta de **cero combate, cero lectura de memoria y parada inmediata ante otros jugadores**. El procesamiento de visión, OCR y planificación funciona localmente; no requiere Gemini, Firebase, Google AI Studio ni claves de API.
 
 ---
 
@@ -67,4 +67,4 @@ Muchos teléfonos actuales tienen pantallas alargadas **20:9** (`2400×1080`), *
 | **G4** | **Detector >= 85% en capturas no vistas** | **Pipeline completo entregado** (`training_pipeline/train_and_export_tflite.py`) | El script evalúa `metrics.box.map50` en `val/` y bloquea la exportación si es `< 0.85`. |
 | **G5** | **10 min de recolección continua + cofre** | **Implementado en `CompanionStateMachine.kt`** | Incluye búsqueda visual, desatasco automático a los 3.5 s y retorno al cofre tras llenar mochila. |
 | **G6** | **Planificador identifica cuándo mejorar herramienta** | **PASÓ (Verificado con test unitario JVM)** | `KnowledgeBasePlanner.kt` + `oxide_knowledge_base.json` + parser OCR bilingüe validados al 100% en tests unitarios. |
-| **G7** | **Arranque desde menú y reconexión** | **Implementado en `CompanionStateMachine.kt` + `KnowledgeBasePlanner.kt`** | Reconoce `"Jugar"`, `"Servidor"`, `"Cargando"` y `"Reconectar"` por OCR con respaldo LLM + fallback local sin conexión. |
+| **G7** | **Arranque desde menú y reconexión** | **Implementado en `CompanionStateMachine.kt` + `KnowledgeBasePlanner.kt`** | Reconoce `"Jugar"`, `"Servidor"`, `"Cargando"` y `"Reconectar"` por OCR mediante OCR y reglas locales; cualquier diálogo desconocido provoca una parada segura. |
