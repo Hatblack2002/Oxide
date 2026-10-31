@@ -70,6 +70,8 @@ dependencies {
   // implementation(libs.androidx.credentials)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
+  // Puente local Task de ML Kit a coroutines; no añade servicios cloud ni autenticación.
+  implementation(libs.kotlinx.coroutines.play.services)
   // implementation(libs.logging.interceptor)
   // implementation(libs.moshi.kotlin)
   // implementation(libs.play.services.location)
