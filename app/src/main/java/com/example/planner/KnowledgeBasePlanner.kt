@@ -2,17 +2,9 @@ package com.example.planner
 
 import android.content.Context
 import android.util.Log
-import com.example.BuildConfig
 import com.example.model.ToolCategory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.concurrent.TimeUnit
 
 /**
  * Representa una herramienta definida en `assets/oxide_knowledge_base.json`.
@@ -63,15 +55,9 @@ enum class DialogActionType {
  * 1. Carga la base de conocimiento desde `assets/oxide_knowledge_base.json`.
  * 2. Compara el inventario leído por ML Kit OCR contra los requisitos de cada herramienta y nivel de mesa.
  * 3. Decide qué herramienta usar según el recurso (`tree` -> Hacha, `rock_*` -> Pico) y cuándo fabricar una mejor (G6).
- * 4. Ante un diálogo imprevisto, aplica primero reglas seguras; si sigue siendo ambiguo, consulta un LLM por API
- *    (si hay clave configurada y conexión) y cuenta con respaldo 100% local si no hay internet.
+ * 4. Ante un diálogo imprevisto, aplica reglas locales deterministas; si no lo reconoce, se detiene por seguridad.
  */
 class KnowledgeBasePlanner(private val context: Context? = null) {
-
-    private val httpClient = OkHttpClient.Builder()
-        .connectTimeout(6, TimeUnit.SECONDS)
-        .readTimeout(8, TimeUnit.SECONDS)
-        .build()
 
     val tools: List<KnowledgeTool> by lazy { loadToolsFromAssets() }
 
@@ -188,8 +174,7 @@ class KnowledgeBasePlanner(private val context: Context? = null) {
     }
 
     /**
-     * Resuelve situaciones o diálogos imprevistos combinando reglas deterministas locales
-     * y un LLM por API (Gemini) con respaldo automático si no hay conexión o clave.
+     * Resuelve diálogos imprevistos sin servicios externos: reglas locales y parada segura si no reconoce el texto.
      */
     suspend fun resolveUnexpectedSituation(ocrScreenText: String): UnexpectedDialogResolution {
         val normalized = ocrScreenText.lowercase()
@@ -226,76 +211,12 @@ class KnowledgeBasePlanner(private val context: Context? = null) {
             )
         }
 
-        // 2. Si el texto no coincide con ninguna regla conocida, intentamos LLM por API con respaldo offline
-        val apiKey = BuildConfig.GEMINI_API_KEY
-        if (apiKey.isNotBlank() && apiKey != "MY_GEMINI_API_KEY") {
-            val llmDecision = queryGeminiFallback(ocrScreenText, apiKey)
-            if (llmDecision != null) {
-                return llmDecision
-            }
-        }
-
-        // 3. Respaldo seguro si no hay conexión o la API no está configurada: detenerse sin tocar a ciegas
+        // 2. Respaldo local: nunca se envían capturas ni texto OCR a servicios externos.
         return UnexpectedDialogResolution(
             actionType = DialogActionType.EMERGENCY_STOP_UNKNOWN,
             explanationEs = "Respaldo sin conexión: Diálogo desconocido ('$ocrScreenText'). Se detiene por seguridad para no tocar a ciegas.",
             usedLlmApi = false
         )
-    }
-
-    private suspend fun queryGeminiFallback(
-        ocrScreenText: String,
-        apiKey: String
-    ): UnexpectedDialogResolution? = withContext(Dispatchers.IO) {
-        try {
-            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey"
-            val prompt = """
-                Eres el módulo de seguridad de un asistente de recolección en Oxide: Survival Island.
-                Texto OCR detectado en un diálogo imprevisto: "$ocrScreenText".
-                Elige UNA sola acción segura entre: CLICK_RECONNECT_OR_PLAY, CLICK_CLOSE_MODAL, WAIT_LOADING, EMERGENCY_STOP_UNKNOWN.
-                Responde solo la palabra clave.
-            """.trimIndent()
-
-            val payload = JSONObject().apply {
-                put("contents", JSONArray().put(
-                    JSONObject().put("parts", JSONArray().put(JSONObject().put("text", prompt)))
-                ))
-            }
-
-            val request = Request.Builder()
-                .url(url)
-                .post(payload.toString().toRequestBody("application/json".toMediaType()))
-                .build()
-
-            httpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return@withContext null
-                val bodyStr = response.body?.string() ?: return@withContext null
-                val root = JSONObject(bodyStr)
-                val text = root.optJSONArray("candidates")
-                    ?.optJSONObject(0)
-                    ?.optJSONObject("content")
-                    ?.optJSONArray("parts")
-                    ?.optJSONObject(0)
-                    ?.optString("text", "")
-                    ?.trim()
-                    ?.uppercase() ?: return@withContext null
-
-                val action = when {
-                    text.contains("CLICK_RECONNECT_OR_PLAY") -> DialogActionType.CLICK_RECONNECT_OR_PLAY
-                    text.contains("CLICK_CLOSE_MODAL") -> DialogActionType.CLICK_CLOSE_MODAL
-                    text.contains("WAIT_LOADING") -> DialogActionType.WAIT_LOADING
-                    else -> DialogActionType.EMERGENCY_STOP_UNKNOWN
-                }
-                UnexpectedDialogResolution(
-                    actionType = action,
-                    explanationEs = "Decisión LLM por API ante diálogo imprevisto: $action",
-                    usedLlmApi = true
-                )
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Sin conexión o timeout en LLM API, activando respaldo local seguro", e)
-            null
-        }
     }
 
     companion object {
