@@ -180,22 +180,17 @@ class CompanionForegroundService : Service() {
                 val calib = CompanionRepository.calibrationProfile.value
                 val acc = OxideAccessibilityService.instance
                 if (acc != null) {
-                    val moved = acc.dispatchJoystickMoveToward(
-                        calibration = calib,
-                        targetScreenX = calib.realLandscapeWidthPx * 0.50f,
-                        targetScreenY = calib.realLandscapeHeightPx * 0.25f,
-                        durationMs = 550L,
-                        g2Approach = 1
-                    )
-                    acc.dispatchHarvestHit(calib, g2Approach = 1)
-                    if (moved) {
-                        CompanionRepository.recordCheckpointAttempt(
-                            id = CheckpointId.G2,
-                            approachNumber = 1,
-                            passed = true,
-                            evidence = "Gesto de joystick + golpe despachado sobre coordenadas calibradas (${calib.aspectRatioLabel})."
-                        )
+                    val moved = acc.dispatchJoystickHold(calib, "forward", 1200L) { completed ->
+                        if (completed) {
+                            acc.dispatchHarvestHit(calib, g2Approach = 1) { hitCompleted ->
+                                CompanionRepository.recordCheckpointAttempt(
+                                    id = CheckpointId.G2, approachNumber = 1, passed = hitCompleted,
+                                    evidence = if (hitCompleted) "Joystick mantenido y golpe posterior despachado (${calib.aspectRatioLabel})." else "Movimiento completado; golpe no confirmado."
+                                )
+                            }
+                        }
                     }
+                    if (!moved) CompanionRepository.appendLog("G2: no se pudo iniciar el gesto sostenido.")
                 }
                 bitmap.recycle()
             }
