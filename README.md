@@ -11,7 +11,7 @@ Asistente nativo Android en Kotlin y Jetpack Compose para **Oxide: Survival Isla
   1. **Verificación de app en primer plano**: Solo despacha gestos si `Oxide: Survival Island` está activo en pantalla y no hay llamadas telefónicas en curso (`AudioManager`).
   2. **Parada instantánea por amenaza**: Si el detector visual encuentra un `player`, si baja el porcentaje de la barra de vida calibrada, si aparece la pantalla de muerte o si se pierde el HUD sin haber abierto el inventario, el servicio cancela todos los gestos al instante, vibra con patrón de alerta y lanza una notificación crítica.
   3. **Botón Flotante `DETENER`**: Siempre visible sobre el juego; detiene la máquina de estados en `< 50 ms`.
-  4. **Protección térmica y de batería (`G3`)**: Reduce automáticamente los FPS de captura si la batería supera `38.5 °C`, pausa en `41.2 °C` y ejecuta parada total en `43.0 °C` o `< 15%` de batería.
+  4. **Telemetría térmica y de batería**: Muestra temperatura y porcentaje como información. Estos valores no reducen FPS, no pausan y no detienen la automatización.
 
 ---
 
@@ -63,7 +63,7 @@ Muchos teléfonos actuales tienen pantallas alargadas **20:9** (`2400×1080`), *
 | :--- | :--- | :--- | :--- |
 | **G1** | **La captura no sale en negro** | **Listo para validar en celular** (Verificador automático integrado en `ScreenCaptureManager.kt`) | Prueba hasta 3 enfoques (`RGBA_8888` con compensación de `rowStride`, banderas `AUTO_MIRROR`/`PUBLIC` y muestreo multi-cuadrante). Si los 3 devuelven luminancia `< 2.2` por `FLAG_SECURE`, se detiene sin evadirlo y genera el informe de hallazgo. |
 | **G2** | **Los toques mueven al personaje y golpean** | **Listo para validar en celular** (Modo `Prueba Toques G2` en el botón flotante) | Implementa 3 enfoques en `OxideAccessibilityService.kt` (trazo continuo, trazos encadenados con `willContinue=true` para Unity y trayectoria curva humanizada) usando las coordenadas calibradas de tu pantalla real. |
-| **G3** | **30 min conectado sin sobrecalentar** | **Verificado en arquitectura** (`SafetyGuardian.kt` + throttling 4–7 FPS) | Reutiliza buffers `ByteBuffer`, ejecuta OCR solo con inventario abierto y reduce FPS automáticamente al subir la temperatura de batería. |
+| **G3** | **30 min conectado sin sobrecalentar** | **Pendiente de validación en dispositivo** | Reutiliza buffers `ByteBuffer` y ejecuta OCR solo con inventario abierto. La temperatura y el nivel de batería son telemetría informativa; no activan pausas ni paradas. |
 | **G4** | **Detector >= 85% en capturas no vistas** | **Pipeline completo entregado** (`training_pipeline/train_and_export_tflite.py`) | El script evalúa `metrics.box.map50` en `val/` y bloquea la exportación si es `< 0.85`. |
 | **G5** | **10 min de recolección continua + cofre** | **Implementado en `CompanionStateMachine.kt`** | Incluye búsqueda visual, desatasco automático a los 3.5 s y retorno al cofre tras llenar mochila. |
 | **G6** | **Planificador identifica cuándo mejorar herramienta** | **PASÓ (Verificado con test unitario JVM)** | `KnowledgeBasePlanner.kt` + `oxide_knowledge_base.json` + parser OCR bilingüe validados al 100% en tests unitarios. |
