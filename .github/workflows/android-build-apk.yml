@@ -21,20 +21,13 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Prepare .env from .env.example
-        run: |
-          if [ ! -f .env ] && [ -f .env.example ]; then
-            cp .env.example .env
-          fi
+      - name: Set up Gradle 9.3.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.3.1"
 
       - name: Build Debug APK
-        run: |
-          chmod +x gradlew || true
-          if [ -f ./gradlew ]; then
-            ./gradlew :app:assembleDebug --no-daemon
-          else
-            gradle :app:assembleDebug --no-daemon
-          fi
+        run: gradle :app:assembleDebug --no-daemon
 
       - name: Upload Compiled APK Artifact
         uses: actions/upload-artifact@v4
