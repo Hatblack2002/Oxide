@@ -33,7 +33,11 @@ class OxideAccessibilityService : AccessibilityService() {
         if (event == null) return
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             val pkg = event.packageName?.toString()
+            // Las ventanas flotantes de Companion generan eventos de ventana propios.
+            // No deben sobrescribir el paquete real del juego: hacerlo provoca una falsa
+            // parada de seguridad mientras el usuario sigue dentro de Oxide.
             if (!pkg.isNullOrBlank() &&
+                pkg != packageName &&
                 !pkg.startsWith("com.android.systemui") &&
                 !pkg.startsWith("android.inputmethodservice")
             ) {
