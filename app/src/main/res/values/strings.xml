@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Oxide Companion</string>
+    <string name="accessibility_service_label">Oxide Compañero de Recolección (Control y Seguridad)</string>
+    <string name="accessibility_service_description">Servicio de accesibilidad ética para Oxide: Survival Island. Ejecuta gestos de joystick, recolección de recursos y apertura de inventario/cofre, y verifica que Oxide esté en primer plano para detenerse de inmediato si cambias de app o aparece un jugador.</string>
+    <string name="notification_channel_name">Telemetría y Estado del Compañero</string>
+    <string name="notification_channel_desc">Notificación fija del servicio en primer plano para captura MediaProjection y parada de emergencia.</string>
+    <string name="alert_channel_name">Alertas de Seguridad Crítica</string>
+    <string name="alert_channel_desc">Avisos inmediatos por detección de jugador, pérdida de vida, sobrecalentamiento o desconexión.</string>
+</resources>

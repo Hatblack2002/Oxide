@@ -1,0 +1,7 @@
+tree
+rock_stone
+rock_metal
+rock_sulfur
+chest
+player
+hud_anchor

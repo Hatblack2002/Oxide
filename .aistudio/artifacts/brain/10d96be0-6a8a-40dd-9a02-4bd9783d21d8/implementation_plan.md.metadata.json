@@ -1,0 +1,6 @@
+{
+  "summary":  "Plan de implementación actualizado con Calibración Dinámica de Pantalla Real (soporte agnóstico de relación de aspecto 20:9, 19.5:9, 16:9 y recorte de cámara/notch, más calibrador interactivo sobre el juego o captura real sin asumir 16:9 fijo).",
+  "updatedAt":  "2026-10-31T20:45:17.684865254Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

@@ -1,0 +1,203 @@
+{
+  "schema_version": "1.0.0",
+  "game": "Oxide: Survival Island (HYPERHUG)",
+  "supported_packages": [
+    "com.catsbit.oxidesurvivalisland",
+    "com.hyperhug.oxide"
+  ],
+  "ethical_boundaries": {
+    "allow_resource_gathering": true,
+    "allow_tool_crafting": true,
+    "allow_chest_deposit": true,
+    "forbid_combat_or_aim": true,
+    "forbid_memory_reading": true,
+    "stop_on_player_detected": true,
+    "stop_on_health_drop": true
+  },
+  "resources": [
+    {
+      "id": "tree",
+      "name_es": "Árbol (Madera)",
+      "name_en": "Tree (Wood)",
+      "yield_material": "wood",
+      "preferred_tool_category": "WOODCUTTING",
+      "ocr_keywords_es": ["Madera", "Wood", "Tronco"],
+      "ocr_keywords_en": ["Wood", "Log"],
+      "max_stack_size": 250
+    },
+    {
+      "id": "rock_stone",
+      "name_es": "Nodo de Piedra",
+      "name_en": "Stone Node",
+      "yield_material": "stone",
+      "preferred_tool_category": "MINING",
+      "ocr_keywords_es": ["Piedra", "Roca", "Stone"],
+      "ocr_keywords_en": ["Stone", "Stones"],
+      "max_stack_size": 250
+    },
+    {
+      "id": "rock_metal",
+      "name_es": "Veta de Metal",
+      "name_en": "Metal Ore Node",
+      "yield_material": "metal_ore",
+      "preferred_tool_category": "MINING",
+      "ocr_keywords_es": ["Mineral de metal", "Mena de metal", "Fragmentos de metal"],
+      "ocr_keywords_en": ["Metal Ore", "Metal Fragments"],
+      "max_stack_size": 250
+    },
+    {
+      "id": "rock_sulfur",
+      "name_es": "Veta de Azufre",
+      "name_en": "Sulfur Ore Node",
+      "yield_material": "sulfur_ore",
+      "preferred_tool_category": "MINING",
+      "ocr_keywords_es": ["Mineral de azufre", "Azufre"],
+      "ocr_keywords_en": ["Sulfur Ore", "Sulfur"],
+      "max_stack_size": 250
+    }
+  ],
+  "tools": [
+    {
+      "id": "starter_rock",
+      "name_es": "Roca Inicial",
+      "name_en": "Rock",
+      "category": "UNIVERSAL",
+      "tier": 0,
+      "workbench_level_required": 0,
+      "gather_speed_multiplier": 1.0,
+      "yield_efficiency": 0.5,
+      "estimated_hits_to_break": 120,
+      "crafting_time_sec": 5,
+      "requirements": {
+        "stone": 10
+      },
+      "ocr_aliases": ["Roca", "Rock"]
+    },
+    {
+      "id": "stone_hatchet",
+      "name_es": "Hacha de Piedra",
+      "name_en": "Stone Hatchet",
+      "category": "WOODCUTTING",
+      "tier": 1,
+      "workbench_level_required": 0,
+      "gather_speed_multiplier": 1.75,
+      "yield_efficiency": 1.0,
+      "estimated_hits_to_break": 200,
+      "crafting_time_sec": 15,
+      "requirements": {
+        "wood": 100,
+        "stone": 50
+      },
+      "ocr_aliases": ["Hacha de piedra", "Stone Hatchet", "Hacha Piedra"]
+    },
+    {
+      "id": "stone_pickaxe",
+      "name_es": "Pico de Piedra",
+      "name_en": "Stone Pickaxe",
+      "category": "MINING",
+      "tier": 1,
+      "workbench_level_required": 0,
+      "gather_speed_multiplier": 1.75,
+      "yield_efficiency": 1.0,
+      "estimated_hits_to_break": 200,
+      "crafting_time_sec": 15,
+      "requirements": {
+        "wood": 100,
+        "stone": 50
+      },
+      "ocr_aliases": ["Pico de piedra", "Stone Pickaxe", "Pico Piedra"]
+    },
+    {
+      "id": "metal_hatchet",
+      "name_es": "Hacha de Metal",
+      "name_en": "Metal Hatchet",
+      "category": "WOODCUTTING",
+      "tier": 2,
+      "workbench_level_required": 1,
+      "gather_speed_multiplier": 2.6,
+      "yield_efficiency": 1.35,
+      "estimated_hits_to_break": 350,
+      "crafting_time_sec": 25,
+      "requirements": {
+        "wood": 100,
+        "metal_fragments": 75
+      },
+      "ocr_aliases": ["Hacha de metal", "Metal Hatchet", "Hatchet"]
+    },
+    {
+      "id": "metal_pickaxe",
+      "name_es": "Pico de Metal",
+      "name_en": "Metal Pickaxe",
+      "category": "MINING",
+      "tier": 2,
+      "workbench_level_required": 1,
+      "gather_speed_multiplier": 2.6,
+      "yield_efficiency": 1.35,
+      "estimated_hits_to_break": 350,
+      "crafting_time_sec": 25,
+      "requirements": {
+        "wood": 100,
+        "metal_fragments": 100
+      },
+      "ocr_aliases": ["Pico de metal", "Metal Pickaxe", "Pickaxe"]
+    },
+    {
+      "id": "salvaged_axe",
+      "name_es": "Hacha Salvaje (Recuperada)",
+      "name_en": "Salvaged Axe",
+      "category": "WOODCUTTING",
+      "tier": 3,
+      "workbench_level_required": 2,
+      "gather_speed_multiplier": 3.5,
+      "yield_efficiency": 1.6,
+      "estimated_hits_to_break": 500,
+      "crafting_time_sec": 35,
+      "requirements": {
+        "metal_pipe": 1,
+        "metal_blade": 3,
+        "wood": 50
+      },
+      "ocr_aliases": ["Hacha salvaje", "Hacha recuperada", "Salvaged Axe"]
+    },
+    {
+      "id": "salvaged_pickaxe",
+      "name_es": "Pico Salvaje (Rompehielos)",
+      "name_en": "Salvaged Icepick",
+      "category": "MINING",
+      "tier": 3,
+      "workbench_level_required": 2,
+      "gather_speed_multiplier": 3.5,
+      "yield_efficiency": 1.6,
+      "estimated_hits_to_break": 500,
+      "crafting_time_sec": 35,
+      "requirements": {
+        "metal_pipe": 1,
+        "metal_blade": 2,
+        "wood": 50
+      },
+      "ocr_aliases": ["Pico salvaje", "Rompehielos", "Salvaged Icepick"]
+    }
+  ],
+  "workbenches": [
+    {
+      "level": 1,
+      "name_es": "Mesa de Trabajo Nivel 1",
+      "name_en": "Workbench Level 1",
+      "requirements": {
+        "wood": 500,
+        "metal_fragments": 100,
+        "scrap": 50
+      }
+    },
+    {
+      "level": 2,
+      "name_es": "Mesa de Trabajo Nivel 2",
+      "name_en": "Workbench Level 2",
+      "requirements": {
+        "metal_fragments": 500,
+        "high_quality_metal": 20,
+        "scrap": 300
+      }
+    }
+  ]
+}

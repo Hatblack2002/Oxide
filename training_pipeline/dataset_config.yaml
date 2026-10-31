@@ -1,0 +1,15 @@
+# Configuración del Dataset YOLO / TFLite para Oxide: Survival Island
+# Soporta capturas de pantalla en cualquier relación de aspecto (20:9, 19.5:9, 16:9) mediante Letterbox.
+path: ./dataset_oxide
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: tree
+  1: rock_stone
+  2: rock_metal
+  3: rock_sulfur
+  4: chest
+  5: player
+  6: hud_anchor
