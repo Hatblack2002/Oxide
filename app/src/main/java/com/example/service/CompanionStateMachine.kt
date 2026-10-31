@@ -1,5 +1,6 @@
 package com.example.service
 
+import android.content.Context
 import android.graphics.Bitmap
 import com.example.model.CheckpointId
 import com.example.model.CompanionState
@@ -25,7 +26,8 @@ import kotlin.math.abs
 class CompanionStateMachine(
     private val visionPipeline: OxideVisionPipeline,
     private val planner: KnowledgeBasePlanner,
-    private val safetyGuardian: SafetyGuardian
+    private val safetyGuardian: SafetyGuardian,
+    private val appContext: Context
 ) {
     private var currentEquippedSlot: Int = -1
     private var currentToolTiers = mutableMapOf(
@@ -42,6 +44,7 @@ class CompanionStateMachine(
     private var totalHarvestCyclesCompleted: Int = 0
     private var systematicSweepCount: Int = 0
     private var g2ApproachInUse: Int = 1
+    private var lastMistralRequestAtMs: Long = 0L
 
     /**
      * Ejecuta un paso completo del ciclo percepción -> seguridad -> decisión -> acción.
@@ -119,6 +122,28 @@ class CompanionStateMachine(
         if (accessibility == null) {
             CompanionRepository.appendLog("Esperando activación de OxideAccessibilityService...")
             return
+        }
+
+        if (MistralKeyStore.isEnabled(appContext) && MistralKeyStore.hasKey(appContext)) {
+            val now = System.currentTimeMillis()
+            if (now - lastMistralRequestAtMs >= 2200L) {
+                lastMistralRequestAtMs = now
+                try {
+                    val directive = MistralVisionClient.analyze(appContext, frame, CompanionRepository.currentState.value.name)
+                    if (directive != null) {
+                        CompanionRepository.appendLog("Mistral: " + directive.action + "/" + directive.direction + " — " + directive.reason)
+                        when (directive.action) {
+                            "move" -> accessibility.dispatchJoystickHold(calibration, directive.direction, 1150L)
+                            "harvest" -> accessibility.dispatchHarvestHit(calibration, g2ApproachInUse)
+                            "look" -> accessibility.dispatchCameraLookSweep(calibration, turnRight = true)
+                            "wait" -> Unit
+                        }
+                        return
+                    }
+                } catch (error: Exception) {
+                    CompanionRepository.appendLog("Mistral no disponible; respaldo local activo")
+                }
+            } else { return }
         }
 
         executeGameplayStateStep(frame, vision, calibration, accessibility)
