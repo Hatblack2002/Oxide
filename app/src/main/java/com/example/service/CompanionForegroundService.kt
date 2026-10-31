@@ -74,7 +74,7 @@ class CompanionForegroundService : Service() {
         visionPipeline = OxideVisionPipeline(this)
         planner = KnowledgeBasePlanner(this)
         safetyGuardian = SafetyGuardian(this)
-        stateMachine = CompanionStateMachine(visionPipeline, planner, safetyGuardian)
+        stateMachine = CompanionStateMachine(visionPipeline, planner, safetyGuardian, applicationContext)
 
         captureManager = ScreenCaptureManager(
             context = this,
