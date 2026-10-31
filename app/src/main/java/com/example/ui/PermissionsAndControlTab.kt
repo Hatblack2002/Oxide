@@ -61,7 +61,6 @@ import com.example.ui.theme.OxideRadarGreen
 import com.example.ui.theme.OxideSlateElevated
 import com.example.ui.theme.OxideSlateSurface
 import com.example.ui.theme.OxideTextSecondary
-import com.example.ui.MistralVisionSettingsCard
 
 /**
  * Pestaña 1: Centro de Permisos con Accesos Directos + Telemetría y Control de Servicio.
