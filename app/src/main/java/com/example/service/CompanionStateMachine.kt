@@ -67,22 +67,12 @@ class CompanionStateMachine(
             return
         }
 
-        // 2. Verificación térmica y de batería (Punto de Control G3)
-        val thermal = safetyGuardian.readThermalAndBatteryStatus()
-        CompanionRepository.updateThermalAndBattery(thermal.temperatureCelsius, thermal.batteryPercent)
-        if (thermal.shouldEmergencyStop) {
-            val reason = if (thermal.temperatureCelsius >= 43.0f) {
-                StopReason.THERMAL_LIMIT_EXCEEDED
-            } else {
-                StopReason.LOW_BATTERY_LIMIT
-            }
-            triggerSafetyStop(reason)
-            return
-        }
-        if (thermal.shouldPauseThermally) {
-            CompanionRepository.updateState(CompanionState.THERMAL_PAUSED)
-            return
-        }
+        // 2. Telemetría informativa: temperatura y carga se muestran, pero nunca bloquean la automatización.
+        val batteryStatus = safetyGuardian.readThermalAndBatteryStatus()
+        CompanionRepository.updateThermalAndBattery(
+            batteryStatus.temperatureCelsius,
+            batteryStatus.batteryPercent
+        )
 
         // 3. Percepción visual (TFLite + Salud en barra calibrada)
         val vision = visionPipeline.analyzeFrame(frame, calibration)
