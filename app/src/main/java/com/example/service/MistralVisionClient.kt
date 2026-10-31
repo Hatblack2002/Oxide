@@ -38,7 +38,7 @@ object MistralKeyStore {
     }
 
     fun save(context: Context, apiKey: String) {
-        require(apiKey.startsWith("sk-") && apiKey.length >= 20) { "La clave Mistral no parece válida." }
+        require(apiKey.trim().length >= 20) { "La clave Mistral no parece válida." }
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, secretKey())
         val encrypted = cipher.doFinal(apiKey.trim().toByteArray(Charsets.UTF_8))
@@ -47,14 +47,16 @@ object MistralKeyStore {
             .putString(VALUE, Base64.encodeToString(packed, Base64.NO_WRAP)).apply()
     }
 
-    fun read(context: Context): String? = try {
-        val packed = Base64.decode(context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getString(VALUE, null) ?: return null, Base64.NO_WRAP)
-        if (packed.size <= 12) return null
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.DECRYPT_MODE, secretKey(), GCMParameterSpec(128, packed.copyOfRange(0, 12)))
-        String(cipher.doFinal(packed.copyOfRange(12, packed.size)), Charsets.UTF_8)
-    } catch (_: Exception) { null }
+    fun read(context: Context): String? {
+        return try {
+            val encoded = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(VALUE, null) ?: return null
+            val packed = Base64.decode(encoded, Base64.NO_WRAP)
+            if (packed.size <= 12) return null
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.DECRYPT_MODE, secretKey(), GCMParameterSpec(128, packed.copyOfRange(0, 12)))
+            String(cipher.doFinal(packed.copyOfRange(12, packed.size)), Charsets.UTF_8)
+        } catch (_: Exception) { null }
+    }
 
     fun hasKey(context: Context): Boolean = read(context) != null
     fun isEnabled(context: Context): Boolean =
@@ -90,7 +92,7 @@ El joystick requiere mantener pulsado, arrastrar desde el centro hacia la direcc
                 .put("messages", JSONArray().put(JSONObject().put("role", "system").put("content", system))
                     .put(JSONObject().put("role", "user").put("content", JSONArray()
                         .put(JSONObject().put("type", "text").put("text", "Estado local: $gameState. Analiza esta pantalla y elige el siguiente paso seguro."))
-                        .put(JSONObject().put("type", "image_url").put("image_url", JSONObject().put("url", imageData))))))
+                        .put(JSONObject().put("type", "image_url").put("image_url", imageData)))))
             val conn = (URL(ENDPOINT).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"; connectTimeout = 12000; readTimeout = 20000
                 doOutput = true
