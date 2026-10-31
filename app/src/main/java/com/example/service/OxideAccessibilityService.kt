@@ -31,18 +31,29 @@ class OxideAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
-        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            val pkg = event.packageName?.toString()
-            // Las ventanas flotantes de Companion generan eventos de ventana propios.
-            // No deben sobrescribir el paquete real del juego: hacerlo provoca una falsa
-            // parada de seguridad mientras el usuario sigue dentro de Oxide.
-            if (!pkg.isNullOrBlank() &&
-                pkg != packageName &&
-                !pkg.startsWith("com.android.systemui") &&
-                !pkg.startsWith("android.inputmethodservice")
-            ) {
-                CompanionRepository.updateForegroundPackage(pkg)
-            }
+        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
+            event.eventType != AccessibilityEvent.TYPE_WINDOWS_CHANGED
+        ) return
+
+        // Priorizar la ventana realmente activa del sistema. El paquete del evento puede
+        // pertenecer a una superposición (Companion, controles de Samsung, etc.) y no a
+        // la aplicación que permanece debajo de ella.
+        val activeWindowPackage = try {
+            windows.firstOrNull { it.isActive }?.root?.packageName?.toString()
+        } catch (_: Exception) {
+            null
+        }
+        val eventPackage = event.packageName?.toString()
+        val pkg = activeWindowPackage
+            ?: eventPackage?.takeIf { event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED }
+
+        if (!pkg.isNullOrBlank() &&
+            pkg != packageName &&
+            !pkg.startsWith("com.android.systemui") &&
+            !pkg.startsWith("android.inputmethodservice")
+        ) {
+            CompanionRepository.updateForegroundPackage(pkg)
+            Log.d(TAG, "Ventana activa detectada: $pkg")
         }
     }
 
