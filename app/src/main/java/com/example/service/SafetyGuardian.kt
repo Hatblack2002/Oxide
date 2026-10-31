@@ -33,7 +33,7 @@ data class ThermalAndBatteryStatus(
  * - Verifica que Oxide esté en primer plano y que no haya llamadas telefónicas activas.
  * - Si aparece otro jugador, baja la vida, muere el personaje o desaparece el HUD:
  *   detiene al instante, vibra y envía notificación crítica.
- * - Vigila temperatura de batería y porcentaje de carga para pausar y avisar antes de calentar demasiado.
+ * - Expone temperatura y nivel de batería como telemetría informativa; nunca detiene ni pausa la automatización por esos valores.
  */
 class SafetyGuardian(private val context: Context) {
 
@@ -75,20 +75,16 @@ class SafetyGuardian(private val context: Context) {
         val charging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
             status == BatteryManager.BATTERY_STATUS_FULL
 
-        // Escalado térmico progresivo para cumplir G3 (30 min conectados sin sobrecalentar)
-        val recFps = when {
-            tempC >= 40.0f -> 4
-            tempC >= 38.5f -> 5
-            else -> 7
-        }
+        // La temperatura y el nivel son solo telemetría. No alteran FPS ni el estado de la automatización.
+        val recFps = 7
 
         return ThermalAndBatteryStatus(
             temperatureCelsius = tempC,
             batteryPercent = pct,
             isCharging = charging,
             recommendedFps = recFps,
-            shouldPauseThermally = tempC >= 41.2f,
-            shouldEmergencyStop = tempC >= 43.0f || (pct <= 14 && !charging)
+            shouldPauseThermally = false,
+            shouldEmergencyStop = false
         )
     }
 
