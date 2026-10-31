@@ -124,6 +124,43 @@ class OxideAccessibilityService : AccessibilityService() {
         )
     }
 
+    /** Mantiene el joystick desplazado, en vez de soltarlo al terminar el arrastre inicial. */
+    fun dispatchJoystickHold(
+        calibration: ScreenCalibrationProfile,
+        direction: String,
+        durationMs: Long = 1100L,
+        onComplete: ((Boolean) -> Unit)? = null
+    ): Boolean {
+        if (!canDispatchSafely()) {
+            onComplete?.invoke(false)
+            return false
+        }
+        val center = calibration.toScreenPx(calibration.joystickCenterNorm)
+        val radius = (calibration.joystickRadiusNormWidth * calibration.realLandscapeWidthPx)
+            .coerceIn(55f, 220f)
+        val (dx, dy) = when (direction) {
+            "left" -> -1f to 0f
+            "right" -> 1f to 0f
+            "back" -> 0f to 1f
+            else -> 0f to -1f
+        }
+        val endX = (center.x + dx * radius).coerceIn(10f, calibration.realLandscapeWidthPx - 10f)
+        val endY = (center.y + dy * radius).coerceIn(10f, calibration.realLandscapeHeightPx - 10f)
+        val path = Path().apply {
+            moveTo(center.x, center.y)
+            lineTo(endX, endY)
+            // Mantener el contacto en el borde durante el resto del gesto.
+            lineTo(endX + 0.5f, endY + 0.5f)
+        }
+        val gesture = GestureDescription.Builder()
+            .addStroke(GestureDescription.StrokeDescription(path, 0L, durationMs.coerceIn(700L, 2500L)))
+            .build()
+        return dispatchGesture(gesture, object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription?) { onComplete?.invoke(true) }
+            override fun onCancelled(gestureDescription: GestureDescription?) { onComplete?.invoke(false) }
+        }, null)
+    }
+
     private fun buildJoystickGesture(
         start: PointF,
         end: PointF,
