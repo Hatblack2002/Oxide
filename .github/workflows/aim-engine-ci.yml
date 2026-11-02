@@ -1,0 +1,26 @@
+name: Oxide Aim Calibration Engine CI
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.3.1"
+      - name: Java 17 engine tests and compiler checks
+        run: gradle :aim-engine:cleanTest :aim-engine:test :aim-engine:build --no-daemon
+      - name: Android application compilation
+        run: gradle :app:assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oxide-companion-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
